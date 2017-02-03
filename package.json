@@ -16,5 +16,8 @@
   "devDependencies": {
     "@types/node": "^7.0.4",
     "typescript": "^2.1.5"
+  },
+  "repository": {
+    "url": "https://github.com/pboymt/transmission-client.git"
   }
 }
