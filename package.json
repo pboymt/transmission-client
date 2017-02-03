@@ -5,7 +5,8 @@
   "main": "lib/transmission.js",
   "files": [
     "src/transmission.ts",
-    "lib/transmission.js"
+    "lib/transmission.js",
+    "src/index.d.ts"
   ],
   "scripts": {
     "test": "node lib/test.js"
