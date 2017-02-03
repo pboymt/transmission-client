@@ -8,7 +8,7 @@
     "lib/transmission.js"
   ],
   "scripts": {
-    "test": "node test.js"
+    "test": "node lib/test.js"
   },
   "keywords": [
     "transmission",

@@ -11,5 +11,3 @@ CVS
 npm-debug.log
 
 node_modules
-src/test.ts
-lib/test.js
