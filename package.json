@@ -23,5 +23,6 @@
   },
   "repository": {
     "url": "https://github.com/pboymt/transmission-client.git"
-  }
+  },
+  "typings": "src/index.d.ts"
 }
