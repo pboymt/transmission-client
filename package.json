@@ -1,0 +1,20 @@
+{
+  "name": "transmission-client",
+  "version": "0.1.0",
+  "description": "A Transmission RPC Client With Typescript.",
+  "main": "lib/transmission",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "transmission",
+    "rpc",
+    "client"
+  ],
+  "author": "pboymt",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^7.0.4",
+    "typescript": "^2.1.5"
+  }
+}
