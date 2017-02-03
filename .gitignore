@@ -1,4 +1,4 @@
 node_modules
-lib/*.js
+lib/test.js
 src/test.ts
 .vscode
