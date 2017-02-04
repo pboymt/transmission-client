@@ -3,7 +3,7 @@ import * as https from 'https';
 import * as util from 'util';
 import * as fs from 'fs';
 import { EventEmitter } from 'events';
-interface TransmissionOptions {
+export interface TransmissionOptions {
     url?: string
     host?: string
     port?: number
@@ -23,13 +23,13 @@ const defaultOptions: TransmissionOptions = {
 }
 export class Transmission extends EventEmitter {
 
-    http: any = https;
+    private http: any = https;
 
     private authHeader: string;
-    statusArray = ['STOPPED', 'CHECK_WAIT', 'CHECK', 'DOWNLOAD_WAIT', 'DOWNLOAD', 'SEED_WAIT', 'SEED', 'ISOLATED'];
-    status: { [status: string]: number } = {};
+    readonly statusArray = ['STOPPED', 'CHECK_WAIT', 'CHECK', 'DOWNLOAD_WAIT', 'DOWNLOAD', 'SEED_WAIT', 'SEED', 'ISOLATED'];
+    private status: { [status: string]: number } = {};
 
-    methods = {
+    readonly methods = {
         torrents: {
             stop: 'torrent-stop',
             start: 'torrent-start',
@@ -121,7 +121,7 @@ export class Transmission extends EventEmitter {
         }
     };
 
-    options = defaultOptions;
+    options: TransmissionOptions = defaultOptions;
 
     constructor(options: TransmissionOptions = {}) {
         super();

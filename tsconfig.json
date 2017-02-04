@@ -4,7 +4,8 @@
         "module": "commonjs",
         "removeComments": true,
         "outDir": "lib",
-        "allowJs": true
+        "declaration": true,
+        "declarationDir": "typings"
     },
     "include": [
         "src/*.ts"

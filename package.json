@@ -6,7 +6,7 @@
   "files": [
     "src/transmission.ts",
     "lib/transmission.js",
-    "src/index.d.ts"
+    "typings/transmission.d.ts"
   ],
   "scripts": {
     "test": "node lib/test.js"
@@ -25,5 +25,5 @@
   "repository": {
     "url": "https://github.com/pboymt/transmission-client.git"
   },
-  "typings": "src/index.d.ts"
+  "typings": "typings/transmission.d.ts"
 }
