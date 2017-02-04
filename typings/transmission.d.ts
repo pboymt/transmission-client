@@ -1,14 +1,6 @@
 /// <reference types="node" />
 import { EventEmitter } from 'events';
-export interface TransmissionOptions {
-    url?: string;
-    host?: string;
-    port?: number;
-    ssl?: boolean;
-    key?: any;
-    username?: string;
-    password?: string;
-}
+import { TransmissionOptions, Torrent, Peer } from './interface';
 export declare class Transmission extends EventEmitter {
     private http;
     private authHeader;
@@ -109,48 +101,71 @@ export declare class Transmission extends EventEmitter {
     constructor(options?: TransmissionOptions);
     set(ids: string | string[], options?: {
         [key: string]: any;
-    }): Promise<{}>;
-    add(URL: string, options?: {
-        [key: string]: any;
     }): Promise<void>;
     addFile(filePath: string, options?: {
         [key: string]: any;
-    }): Promise<any>;
+    }): Promise<{
+        hashString: string;
+        id: number;
+        name: string;
+    }>;
     addBase64(fileb64: string, options?: {
         [key: string]: any;
-    }): Promise<any>;
+    }): Promise<{
+        hashString: string;
+        id: number;
+        name: string;
+    }>;
+    addHash(HASH: string, options?: {
+        [key: string]: any;
+    }): Promise<{
+        hashString: string;
+        id: number;
+        name: string;
+    }>;
+    addMagnet(MagnetLink: string, options: any): Promise<{
+        hashString: string;
+        id: number;
+        name: string;
+    }>;
     addURL(URL: string, options?: {
         [key: string]: any;
-    }): Promise<any>;
-    addTorrentDataSrc(args: {
-        [key: string]: any;
-    }, options?: {
-        [key: string]: any;
-    }): Promise<any>;
-    remove(ids: string | string[], del?: boolean): Promise<{}>;
-    move(ids: string | string[], location: string, move?: boolean): Promise<{}>;
-    rename(ids: string | string[], pathName: string, name: string): Promise<{}>;
-    get(ids?: string | string[]): Promise<{}>;
+    }): Promise<{
+        hashString: string;
+        id: number;
+        name: string;
+    }>;
+    private addTorrentDataSrc(args, options?);
+    remove(ids: string | string[], deleteIt?: boolean): Promise<void>;
+    move(ids: string | string[], newLocation: string, moveNow?: boolean): Promise<any>;
+    rename(id: string, oldName: string, newName: string): Promise<any>;
+    get(ids?: string | string[]): Promise<{
+        torrents: Torrent[];
+    }>;
     waitForState(id: string, targetState: string): Promise<void>;
-    peers(ids: string | string[]): Promise<any>;
+    peers(ids: string | string[]): Promise<[{
+        hashString: string;
+        id: string;
+        peers: Peer[];
+    }]>;
     files(ids: string | string[]): Promise<any>;
     fast(ids: string | string[]): Promise<any>;
-    stop(ids: string | string[]): Promise<{}>;
-    stopAll(): Promise<{}>;
-    start(ids: string | string[]): Promise<{}>;
-    startAll(): Promise<{}>;
-    startNow(ids: string | string[]): Promise<{}>;
-    verify(ids: string | string[]): Promise<{}>;
-    reannounce(ids: string | string[]): Promise<{}>;
-    all(): Promise<{}>;
-    active(): Promise<{}>;
-    getSession(): Promise<{}>;
+    stop(ids: string | string[]): Promise<any>;
+    stopAll(): Promise<any>;
+    start(ids: string | string[]): Promise<any>;
+    startAll(): Promise<any>;
+    startNow(ids: string | string[]): Promise<any>;
+    verify(ids: string | string[]): Promise<any>;
+    reannounce(ids: string | string[]): Promise<any>;
+    all(): Promise<any>;
+    active(): Promise<any>;
+    getSession(): Promise<any>;
     setSession(data: {
         [key: string]: boolean;
-    }): Promise<{}>;
-    sessionStats(): Promise<{}>;
-    freeSpace(path: string): Promise<{}>;
-    callServer(query: Object): Promise<{}>;
+    }): Promise<any>;
+    sessionStats(): Promise<any>;
+    freeSpace(path: string): Promise<any>;
+    callServer(query: Object): Promise<any>;
     private S4();
     private uuid();
 }

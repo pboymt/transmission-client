@@ -3,15 +3,8 @@ import * as https from 'https';
 import * as util from 'util';
 import * as fs from 'fs';
 import { EventEmitter } from 'events';
-export interface TransmissionOptions {
-    url?: string
-    host?: string
-    port?: number
-    ssl?: boolean
-    key?: any
-    username?: string
-    password?: string
-}
+import { TransmissionOptions, Torrent, Peer, File, FileStat } from './interface';
+
 const defaultOptions: TransmissionOptions = {
     url: '/transmission/rpc',
     host: 'localhost',
@@ -21,14 +14,23 @@ const defaultOptions: TransmissionOptions = {
     username: null,
     password: null,
 }
+/**
+ * Transmission Client using RPC.
+ */
 export class Transmission extends EventEmitter {
 
     private http: any = https;
 
     private authHeader: string;
+    /**
+     * Array of Transmission Status.
+     */
     readonly statusArray = ['STOPPED', 'CHECK_WAIT', 'CHECK', 'DOWNLOAD_WAIT', 'DOWNLOAD', 'SEED_WAIT', 'SEED', 'ISOLATED'];
-    private status: { [status: string]: number } = {};
 
+    private status: { [status: string]: number } = {};
+    /**
+     * Methods can be used in Transmission RPC.
+     */
     readonly methods = {
         torrents: {
             stop: 'torrent-stop',
@@ -120,7 +122,9 @@ export class Transmission extends EventEmitter {
             freeSpace: 'free-space'
         }
     };
-
+    /**
+     * Options of Transmission Client.
+     */
     options: TransmissionOptions = defaultOptions;
 
     constructor(options: TransmissionOptions = {}) {
@@ -136,8 +140,10 @@ export class Transmission extends EventEmitter {
             //console.log(this.authHeader);
         }
     }
-
-    async set(ids: string | string[], options: { [key: string]: any } = null) {
+    /**
+     * Change status of Torrent task.
+     */
+    async set(ids: string | string[], options: { [key: string]: any } = null): Promise<void> {
         ids = Array.isArray(ids) ? ids : [ids];
         let args = { ids: ids };
 
@@ -150,17 +156,18 @@ export class Transmission extends EventEmitter {
             throw new Error('Arguments mismatch for "bt.set"');
         }
 
-        return await this.callServer({
+        let res = await this.callServer({
             arguments: args,
             method: this.methods.torrents.set,
             tag: this.uuid()
         });
+        if (res != {}) {
+            throw new Error('Unknown Error in "bt.set"');
+        }
     }
-
-    async add(URL: string, options: { [key: string]: any } = null) {
-        this.addURL(URL, options);
-    }
-
+    /**
+     * Add a Torrent from local file.
+     */
     async addFile(filePath: string, options: { [key: string]: any } = null) {
         var self = this;
         let data: Buffer = fs.readFileSync(filePath);
@@ -169,25 +176,45 @@ export class Transmission extends EventEmitter {
             metainfo: fileContentBase64
         }, options);
     }
-
+    /**
+     * Add a Torrent from Base64-string serialized from a local .torrent file.
+     */
     async addBase64(fileb64: string, options: { [key: string]: any } = null) {
         return await this.addTorrentDataSrc({
             metainfo: fileb64
         }, options);
     }
-
+    /**
+     * Add a Torrent from a HashString.
+     */
+    async addHash(HASH: string, options: { [key: string]: any } = null) {
+        return await this.addMagnet(HASH, options);
+    }
+    /**
+     * Add a Torrent from a MagnetLink.
+     */
+    async addMagnet(MagnetLink: string, options) {
+        if (MagnetLink.match(/^[0-9A-z]{32,40}$/)) {
+            MagnetLink = 'magnet:?xt=urn:btih:' + URL;
+        }
+        return await this.addURL(MagnetLink, options);
+    }
+    /**
+     * Add a Torrent from a .torrent file in URL.
+     */
     async addURL(URL: string, options: { [key: string]: any } = null) {
         return await this.addTorrentDataSrc({
             filename: URL
         }, options);
     }
 
-    async addTorrentDataSrc(args: { [key: string]: any }, options?: { [key: string]: any }) {
+    private async addTorrentDataSrc(args: { [key: string]: any }, options?: { [key: string]: any }): Promise<{ hashString: string, id: number, name: string }> {
         if (typeof options === 'object') {
-            let keys = Object.keys(options);
-            for (let key of keys) {
-                args[key] = options[key];
-            }
+            // let keys = Object.keys(options);
+            // for (let key of keys) {
+            //     args[key] = options[key];
+            // }
+            Object.assign(args, options || {});
         } else {
             throw new Error('Arguments mismatch for "bt.add"');
         }
@@ -204,41 +231,50 @@ export class Transmission extends EventEmitter {
                 throw err;
             });
     }
-
-    async remove(ids: string | string[], del: boolean = false) {
+    /**
+     * Remove (to trash) Torrent(s) from list by HashString.
+     */
+    async remove(ids: string | string[], deleteIt: boolean = false) {
         ids = Array.isArray(ids) ? ids : [ids];
         let options = {
             arguments: {
                 ids: ids,
-                'delete-local-data': !!del
+                'delete-local-data': Boolean(deleteIt)
             },
             method: this.methods.torrents.remove,
             tag: this.uuid()
         };
-        return await this.callServer(options);
+        await this.callServer(options);
     }
-
-    async move(ids: string | string[], location: string, move: boolean = true) {
+    /**
+     * Moving a Torrent
+     */
+    async move(ids: string | string[], newLocation: string, moveNow: boolean = true) {
         ids = Array.isArray(ids) ? ids : [ids];
+        if (!newLocation.match(/[\/\\]$/)) {
+            newLocation = newLocation + '/';
+        }
         var options = {
             arguments: {
                 ids: ids,
-                location: location,
-                move: move
+                location: newLocation,
+                move: moveNow
             },
             method: this.methods.torrents.location,
             tag: this.uuid()
         };
         return await this.callServer(options);
     }
-
-    async rename(ids: string | string[], pathName: string, name: string) {
-        ids = Array.isArray(ids) ? ids : [ids];
+    /**
+     * Rename a Torrent.
+     */
+    async rename(id: string, oldName: string, newName: string) {
+        let ids = [id];
         let options = {
             arguments: {
                 ids: ids,
-                path: pathName,
-                name: name
+                path: oldName,
+                name: newName
             },
             method: this.methods.torrents.rename,
             tag: this.uuid()
@@ -260,7 +296,7 @@ export class Transmission extends EventEmitter {
             delete options.arguments.ids;
         }
 
-        let res = await this.callServer(options);
+        let res: { torrents: Torrent[] } = await this.callServer(options);
         console.log(res);
         return res;
     }
@@ -299,7 +335,7 @@ export class Transmission extends EventEmitter {
         // });
     }
 
-    async peers(ids: string | string[]) {
+    async peers(ids: string | string[]): Promise<[{ hashString: string, id: string, peers: Peer[] }]> {
         ids = Array.isArray(ids) ? ids : [ids];
         var options = {
             arguments: {
@@ -506,7 +542,7 @@ export class Transmission extends EventEmitter {
             options.headers['Authorization'] = this.authHeader;
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise<any>((resolve, reject) => {
             //console.log(options);
             //console.log(queryJsonify);
             let req = this.http.request(options, (res) => {

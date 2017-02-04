@@ -5,7 +5,7 @@ let t = new Transmission({
     password: 'transmission'
 });
 async function test() {
-    let res =  await t.getSession();
+    let res = await t.getSession();
     console.log(res || 'no');
 }
 test()
