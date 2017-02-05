@@ -3,7 +3,7 @@ import * as https from 'https';
 import * as util from 'util';
 import * as fs from 'fs';
 import { EventEmitter } from 'events';
-import { TransmissionOptions, Torrent, Peer, File, FileStat } from './interface';
+import { TransmissionOptions, File, FileStat, Peer, Torrent, Session, Status } from './interface';
 
 const defaultOptions: TransmissionOptions = {
     url: '/transmission/rpc',
@@ -281,7 +281,9 @@ export class Transmission extends EventEmitter {
         };
         return await this.callServer(options);
     }
-
+    /**
+     * Getting Torrents status.
+     */
     async get(ids?: string | string[]) {
         let options = {
             arguments: {
@@ -300,7 +302,9 @@ export class Transmission extends EventEmitter {
         console.log(res);
         return res;
     }
-
+    /**
+     * waitForState
+     */
     async waitForState(id: string, targetState: string) {
         let self = this;
         let latestState = 'unknown';
@@ -334,7 +338,9 @@ export class Transmission extends EventEmitter {
 
         // });
     }
-
+    /**
+     * Get Peers of Torrent(s).
+     */
     async peers(ids: string | string[]): Promise<[{ hashString: string, id: string, peers: Peer[] }]> {
         ids = Array.isArray(ids) ? ids : [ids];
         var options = {
@@ -354,8 +360,10 @@ export class Transmission extends EventEmitter {
                 throw err;
             });
     }
-
-    async files(ids: string | string[]) {
+    /**
+     * Getting Filelist of Torrent(s).
+     */
+    async files(ids: string | string[]): Promise<[{ hashString: string, id: string, fileStats: FileStat[], files: File[] }]> {
         ids = Array.isArray(ids) ? ids : [ids];
         let options = {
             arguments: {
@@ -374,8 +382,10 @@ export class Transmission extends EventEmitter {
                 throw err;
             });
     }
-
-    async fast(ids: string | string[]) {
+    /**
+     * Getting Torrent Status Fast.
+     */
+    async getFast(ids: string | string[]) {
         ids = Array.isArray(ids) ? ids : [ids];
         let options = {
             arguments: {
@@ -391,10 +401,12 @@ export class Transmission extends EventEmitter {
             throw err;
         });
     }
-
+    /**
+     * Stop Torrent(s).
+     */
     async stop(ids: string | string[]) {
         ids = Array.isArray(ids) ? ids : [ids];
-        return await this.callServer({
+        await this.callServer({
             arguments: {
                 ids: ids
             },
@@ -402,16 +414,20 @@ export class Transmission extends EventEmitter {
             tag: this.uuid()
         });
     }
-
+    /**
+     * Stop All Torrents.
+     */
     async stopAll() {
-        return await this.callServer({
+        await this.callServer({
             method: this.methods.torrents.stop
         });
     }
-
+    /**
+     * Start Torrent(s).
+     */
     async start(ids: string | string[]) {
         ids = Array.isArray(ids) ? ids : [ids];
-        return await this.callServer({
+        await this.callServer({
             arguments: {
                 ids: ids
             },
@@ -419,16 +435,20 @@ export class Transmission extends EventEmitter {
             tag: this.uuid()
         });
     }
-
+    /**
+     * Start All Torrents.
+     */
     async startAll() {
-        return await this.callServer({
+        await this.callServer({
             method: this.methods.torrents.start
         });
     }
-
+    /**
+     * Start Torrent(s) now.
+     */
     async startNow(ids: string | string[]) {
         ids = Array.isArray(ids) ? ids : [ids];
-        return await this.callServer({
+        await this.callServer({
             arguments: {
                 ids: ids
             },
@@ -436,10 +456,12 @@ export class Transmission extends EventEmitter {
             tag: this.uuid()
         });
     }
-
+    /**
+     * Verify Torrent(s).
+     */
     async verify(ids: string | string[]) {
         ids = Array.isArray(ids) ? ids : [ids];
-        return await this.callServer({
+        await this.callServer({
             arguments: {
                 ids: ids
             },
@@ -447,10 +469,12 @@ export class Transmission extends EventEmitter {
             tag: this.uuid()
         });
     }
-
+    /**
+     * Ask tracker for more peers.
+     */
     async reannounce(ids: string | string[]) {
         ids = Array.isArray(ids) ? ids : [ids];
-        return await this.callServer({
+        await this.callServer({
             arguments: {
                 ids: ids
             },
@@ -458,8 +482,10 @@ export class Transmission extends EventEmitter {
             tag: this.uuid()
         });
     }
-
-    async all() {
+    /**
+     * Getting list of all Torrents and all fields.
+     */
+    async all(): Promise<{ torrents: Torrent[] }> {
         return await this.callServer({
             arguments: {
                 fields: this.methods.torrents.fields
@@ -468,8 +494,10 @@ export class Transmission extends EventEmitter {
             tag: this.uuid()
         });
     }
-
-    async active() {
+    /**
+     * Getting recently-active Torrents.
+     */
+    async active(): Promise<{ removed: number[], torrents: Torrent[] }> {
         return await this.callServer({
             arguments: {
                 fields: this.methods.torrents.fields,
@@ -479,15 +507,19 @@ export class Transmission extends EventEmitter {
             tag: this.uuid()
         });
     }
-
-    async getSession() {
+    /**
+     * Getting Transmission-daemon Session Status.
+     */
+    async getSession(): Promise<Session> {
         return await this.callServer({
             method: this.methods.session.get,
             tag: this.uuid()
         });
     }
-
-    async setSession(data: { [key: string]: boolean }) {
+    /**
+     * Setting Transmission-daemon Session Status.
+     */
+    async setSession(data: Session) {
         let keys = Object.keys(data);
         for (let key of keys) {
             if (!this.methods.session.setTypes[key]) {
@@ -503,15 +535,19 @@ export class Transmission extends EventEmitter {
             tag: this.uuid()
         });
     }
-
-    async sessionStats() {
+    /**
+     * Getting Current Transmission-daemon Status.
+     */
+    async sessionStats(): Promise<Status> {
         return await this.callServer({
             method: this.methods.session.stats,
             tag: this.uuid()
         });
     }
-
-    async freeSpace(path: string) {
+    /**
+     * Getting free space of a given path.
+     */
+    async freeSpace(path: string): Promise<{ path: string, "size-bytes": number }> {
         return await this.callServer({
             arguments: {
                 path: path
@@ -519,7 +555,9 @@ export class Transmission extends EventEmitter {
             method: this.methods.other.freeSpace
         });
     }
-
+    /**
+     * Main Method.
+     */
     async callServer(query: Object) {
         const self = this;
         const queryJsonify = JSON.stringify(query);

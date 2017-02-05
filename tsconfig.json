@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "es6",
         "module": "commonjs",
-        "removeComments": true,
+        "removeComments": false,
         "outDir": "lib",
         "declaration": true,
         "declarationDir": "typings"
