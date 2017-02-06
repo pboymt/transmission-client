@@ -5,6 +5,8 @@ import * as fs from 'fs';
 import { EventEmitter } from 'events';
 import { TransmissionOptions, File, FileStat, Peer, Torrent, Session, Status } from './interface';
 
+export * from './interface';
+
 const defaultOptions: TransmissionOptions = {
     url: '/transmission/rpc',
     host: 'localhost',

@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { EventEmitter } from 'events';
 import { TransmissionOptions, File, FileStat, Peer, Torrent, Session, Status } from './interface';
+export * from './interface';
 /**
  * Transmission Client using RPC.
  */
