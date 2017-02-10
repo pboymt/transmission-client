@@ -1,6 +1,6 @@
 {
   "name": "transmission-client",
-  "version": "0.4.2",
+  "version": "0.4.4",
   "description": "A Transmission RPC Client With Typescript.",
   "main": "lib/transmission.js",
   "engines": {

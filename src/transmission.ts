@@ -5,8 +5,6 @@ import * as fs from 'fs';
 import { EventEmitter } from 'events';
 import { TransmissionOptions, File, FileStat, Peer, Torrent, Session, Status } from './interface';
 
-export { TransmissionOptions, File, FileStat, Peer, Torrent, Session, Status };
-
 const defaultOptions: TransmissionOptions = {
     url: '/transmission/rpc',
     host: 'localhost',
@@ -301,7 +299,7 @@ export class Transmission extends EventEmitter {
         }
 
         let res: { torrents: Torrent[] } = await this.callServer(options);
-        console.log(res);
+        // console.log(res);
         return res;
     }
     /**
@@ -597,7 +595,7 @@ export class Transmission extends EventEmitter {
                 res.on('end', () => {
                     let json, error;
                     if (res.statusCode === 409) {
-                        console.log(409);
+                        // console.log(409);
                         self.options.key = res.headers['x-transmission-session-id'];
                         this.callServer(query)
                             .then(res => {
