@@ -1,10 +1,10 @@
 {
   "name": "transmission-client",
-  "version": "0.4.4",
+  "version": "1.0.0",
   "description": "A Transmission RPC Client With Typescript.",
   "main": "lib/transmission.js",
   "engines": {
-    "node": ">= 6"
+    "node": ">= 7"
   },
   "files": [
     "src/transmission.ts",
@@ -24,7 +24,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^7.0.4",
-    "typescript": "^2.1.5"
+    "typescript": "^2.4.1"
   },
   "repository": {
     "url": "https://github.com/pboymt/transmission-client.git"
