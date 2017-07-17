@@ -619,7 +619,7 @@ export class Transmission extends EventEmitter {
                         }
 
                         if (json.result === 'success') {
-                            console.log('success');
+                            // console.log('success');
                             //console.log(json.arguments);
                             resolve(json.arguments);
                         } else {
